@@ -1,33 +1,8 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-*.so.*
-
 # Fortran module files
 *.mod
 *.smod
 
-# Compiled Static libraries
+# Compiled libraries
 *.lai
 *.la
 *.a
@@ -60,9 +35,16 @@ compile_commands.json
 # vcpkg
 vcpkg_installed/
 
-# debug information files
+# Debug information
 *.dwo
 
-# test output & cache
+# Test output and cache
 Testing/
 .cache/
+
+# Python files and secrets
+.env
+__pycache__/
+*.pyc
+venv/
+.venv/
