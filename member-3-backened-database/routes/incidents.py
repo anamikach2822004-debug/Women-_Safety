@@ -8,18 +8,18 @@ incidents_bp = Blueprint("incidents", __name__)
 @login_required
 def add_incident():
     data = request.get_json() or {}
-
+    
     description = data.get("description")
     latitude = data.get("latitude")
     longitude = data.get("longitude")
-
+    
     if not description:
         return jsonify({"error": "Description is required"}), 400
-
+        
     conn = get_db()
     cursor = conn.execute(
-        """INSERT INTO incidents
-        (user_id, description, latitude, longitude)
+        """INSERT INTO incidents 
+        (user_id, description, latitude, longitude) 
         VALUES (?, ?, ?, ?)""",
         (session["user_id"], description, latitude, longitude)
     )
@@ -29,20 +29,51 @@ def add_incident():
 
     return jsonify({
         "message": "Incident recorded successfully",
-        "incident_id": incident_id
+        "incident_id": incident_id,
+        "status": "active"
     }), 201
-
 
 @incidents_bp.route("/incidents", methods=["GET"])
 @login_required
 def get_incidents():
     conn = get_db()
+    # Added 'status' to the SELECT query so the client can see active/cancelled states
     incidents = conn.execute(
-        """SELECT id, description, latitude, longitude, created_at
-        FROM incidents WHERE user_id = ?
+        """SELECT id, description, latitude, longitude, status, created_at 
+        FROM incidents WHERE user_id = ? 
         ORDER BY created_at DESC""",
         (session["user_id"],)
     ).fetchall()
     conn.close()
 
     return jsonify([dict(incident) for incident in incidents])
+
+# NEW ROUTE: Support SOS Cancellation
+@incidents_bp.route("/incidents/<int:incident_id>/cancel", methods=["PATCH", "PUT"])
+@login_required
+def cancel_incident(incident_id):
+    conn = get_db()
+    
+    # Check if the incident belongs to the logged-in user
+    incident = conn.execute(
+        "SELECT * FROM incidents WHERE id = ? AND user_id = ?",
+        (incident_id, session["user_id"])
+    ).fetchone()
+    
+    if not incident:
+        conn.close()
+        return jsonify({"error": "Incident not found or unauthorized"}), 404
+        
+    # Update status to cancelled
+    conn.execute(
+        "UPDATE incidents SET status = 'cancelled' WHERE id = ?",
+        (incident_id,)
+    )
+    conn.commit()
+    conn.close()
+    
+    return jsonify({
+        "message": "SOS incident cancelled successfully",
+        "incident_id": incident_id,
+        "status": "cancelled"
+    }), 200

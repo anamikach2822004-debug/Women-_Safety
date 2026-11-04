@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS incidents (
     description TEXT,
     latitude REAL,
     longitude REAL,
+    status TEXT DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
