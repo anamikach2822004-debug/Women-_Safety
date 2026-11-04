@@ -65,7 +65,7 @@ async function activateSOS() {
 
         // Send emergency details to Flask backend
         const response = await fetch(
-            `${API_BASE_URL}/api/incidents/sos`,
+            `${API_BASE_URL}/api/incidents`,
             {
                 method: "POST",
                 headers: {
@@ -73,12 +73,10 @@ async function activateSOS() {
                 },
                 credentials: "include",
                 body: JSON.stringify({
-                    latitude: location?.latitude ?? null,
-                    longitude: location?.longitude ?? null,
-                    location_shared: Boolean(location),
-                    message: "I need emergency assistance!",
-                    status: "active"
-                })
+    latitude: location?.latitude ?? null,
+    longitude: location?.longitude ?? null,
+    description: "I need emergency assistance!"
+})
             }
         );
 

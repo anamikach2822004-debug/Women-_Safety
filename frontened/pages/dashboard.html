@@ -22,6 +22,20 @@
 <div class="page-container">
 
     <h1 class="page-title">Welcome to Your Dashboard!</h1>
+    <div class="dash-card emergency-card">
+    <h3>🚨 Emergency SOS</h3>
+    <p>Need immediate help? Send an emergency alert to your trusted contacts.</p>
+
+    <button id="sosButton" class="btn">
+        Send SOS
+    </button>
+
+    <p id="sosStatus" class="message"></p>
+
+    <button id="cancelSOSButton" class="btn" hidden>
+        Cancel SOS
+    </button>
+</div>
 
     <div class="dashboard-grid">
 
@@ -59,5 +73,6 @@
 </footer>
 
 <script src="../script.js"></script>
+<script type="module" src="../../emergency-system/emergency.js"></script>
 </body>
 </html>
