@@ -1,10 +1,9 @@
-
 import os
 import smtplib
 import ssl
 from email.message import EmailMessage
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from database.db import get_db
 from routes.utils import login_required
 
@@ -67,20 +66,27 @@ def send_emergency_notification():
             f"{incident['latitude']},{incident['longitude']}"
         )
 
-    sent_count = 0
+        sent_count = 0
 
     try:
         context = ssl.create_default_context()
 
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls(context=context)
+        with smtplib.SMTP_SSL(
+            "smtp.gmail.com",
+            465,
+            context=context,
+            timeout=20
+        ) as server:
+
             server.login(sender, password)
+            print("GMAIL LOGIN SUCCESSFUL")
 
             for contact in contacts:
                 email = EmailMessage()
                 email["Subject"] = "Emergency SOS Alert - SafeCircle"
                 email["From"] = sender
                 email["To"] = contact["email"]
+
                 email.set_content(
                     f"Hello {contact['name']},\n\n{message_text}"
                 )
@@ -88,7 +94,11 @@ def send_emergency_notification():
                 server.send_message(email)
                 sent_count += 1
 
-    except Exception:
+        print("EMAILS SENT:", sent_count)
+
+    except Exception as error:
+        print("EMAIL ERROR:", repr(error))
+
         return jsonify({
             "error": "Unable to send emergency emails. Check Gmail configuration."
         }), 500
@@ -98,7 +108,6 @@ def send_emergency_notification():
         "emails_sent": sent_count
     }), 200
 
-
 def request_user_id():
-    from flask import session
     return session["user_id"]
+
